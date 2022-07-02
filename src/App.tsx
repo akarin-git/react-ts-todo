@@ -1,8 +1,95 @@
-import React from "react";
+import React, { useState } from "react";
+// import { MemberName } from "typescript";
 import "./App.css";
 
 function App() {
-  return <div className="App">hi</div>;
+  const [inputValue, setInputValue] = useState("");
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  type Todo = {
+    inputValue: string;
+    id: number;
+    checked: boolean;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    // console.log(e.target.value)
+    setInputValue(e.target.value);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    // console.log(id);
+    e.preventDefault();
+    // 新しいTOODを宣言
+    const newTodo: Todo = {
+      inputValue: inputValue,
+      id: todos.length,
+      checked: false,
+    };
+
+    setTodos([newTodo, ...todos]);
+  };
+
+  const handleEdit = (id: number, inputValue: string) => {
+    const newTodos = todos.map((todo) => {
+      if (todo.id === id) {
+        todo.inputValue = inputValue;
+      }
+      return todo;
+    });
+    setTodos(newTodos);
+  };
+
+  const handleChecked = (id: number, checked: boolean) => {
+    const newTodos = todos.map((todo) => {
+      if (todo.id === id) {
+        todo.checked = !checked;
+      }
+      return todo;
+    });
+    setTodos(newTodos);
+  };
+
+  const handleDelete = (id: number) => {
+    const newTodos = todos.filter((todo) => todo.id !== id);
+    // idが一致していないものを残してsetTodosにセット
+    setTodos(newTodos);
+  };
+
+  return (
+    <div className="App">
+      <div>
+        <h2>タイトル</h2>
+        <form onSubmit={(e) => handleSubmit(e)}>
+          <input
+            type="text"
+            onChange={(e) => handleChange(e)}
+            className="inputText"
+          />
+          <input type="submit" value="作成" className="submitButton" />
+        </form>
+        <ul className="todoList">
+          {todos.map((todo) => (
+            <li key={todo.id}>
+              <input
+                type="text"
+                onChange={(e) => handleEdit(todo.id, e.target.value)}
+                className="inputText"
+                value={todo.inputValue}
+                disabled={todo.checked}
+              />
+              <input
+                type="checkbox"
+                onChange={(e) => handleChecked(todo.id, todo.checked)}
+              />
+              <button onClick={() => handleDelete(todo.id)}>消</button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
 }
 
 export default App;
